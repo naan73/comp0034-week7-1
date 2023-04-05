@@ -2,7 +2,7 @@ import pickle
 from pathlib import Path
 import numpy as np
 from flask import render_template, current_app as app
-
+from flask import render_template, request
 
 pickle_file = Path(__file__).parent.joinpath("data", "model_lr.pkl")
 IRIS_MODEL = pickle.load(open(pickle_file, "rb"))
@@ -13,6 +13,26 @@ def index():
     """Create home page"""
     return render_template("index.html")
 
+@app.route("/predict", methods=["GET"])
+def predict():
+    """Predict iris species
+
+    Takes the arguments sepal_length,sepal_width,petal_length,petal_width  from an HTTP request; passes them as arguments to a function to get a prection of the iris variety and returns the result.
+
+    Returns:
+        species(str): A string of the iris species.
+    """
+
+    sepal_length = request.args.get("sep-len")
+    sepal_width = request.args.get("sep-wid")
+    petal_length = request.args.get("pet-len")
+    petal_width = request.args.get("pet-wid")
+
+    prediction = str(make_prediction(
+        [sepal_length, sepal_width, petal_length, petal_width]
+    ))
+
+    return prediction
 
 def make_prediction(flower_values):
     """Takes the flower values, makes a model using the prediction and returns a string of the predicted flower variety
